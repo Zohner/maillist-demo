@@ -1,0 +1,16 @@
+{
+    "name": "maillist",
+    "version": "0.0.1",
+    "description": "maillist description",
+    "main": "app.js",
+    "dependencies": {
+        "express": "4.16.1",
+        "node-xlsx": "0.11.0",
+        "express-handlebars": "3.0.0",
+        "mysql": "2.14.1",
+        "formidable": "1.1.1",
+        "body-parser": "1.18.2",
+        "express-session": "1.15.6",
+        "cookie-parser": "1.4.3"
+    }
+}

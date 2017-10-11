@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>通讯录</title>
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="../easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="../easyui/demo/demo.css">
+    <script type="text/javascript" src="../jquery/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <h2>通讯录</h2>
+    <p>在这个页面中你可以对你的通讯录进行CRUD操作</p>
+	
+	<div id="sc" style="padding:3px">
+		<span>姓名:</span>
+		<input id="s_name" style="line-height:26px;border:1px solid #ccc">
+		<span>电话:</span>
+		<input id="s_telephone" style="line-height:26px;border:1px solid #ccc">
+		<span>公司:</span>
+		<input id="s_company" style="line-height:26px;border:1px solid #ccc">
+		<span>邮箱:</span>
+		<input id="s_email" style="line-height:26px;border:1px solid #ccc">
+		<span>群组:</span>
+		<input id="s_mgroup" style="line-height:26px;border:1px solid #ccc">
+		<span>备注:</span>
+		<input id="s_comments" style="line-height:26px;border:1px solid #ccc">
+		<a href="javascript:void(0)" class="easyui-linkbutton" plain="true" onclick="doSearch()">查找</a>
+	</div>
+    
+    <table id="dg" title="我的通讯录" class="easyui-datagrid" style="width:700px;height:250px"
+            url="get_users"
+            toolbar="#toolbar" pagination="true"
+            rownumbers="true" fitColumns="true" singleSelect="true">
+        <thead>
+            <tr>
+                <th field="name" width="50">姓名</th>
+                <th field="telephone" width="50">电话</th>
+				<th field="company" width="50">公司</th>
+				<th field="email" width="50">电子邮件</th>
+				<th field="mgroup" width="50">群组</th>
+				<th field="comments" width="50">备注</th>
+            </tr>
+        </thead>
+    </table>
+	
+    <div id="toolbar">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">新建联系人</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">编辑联系人</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除联系人</a>
+    </div>
+    
+    <div id="dlg" class="easyui-dialog" style="width:400px"
+            closed="true" buttons="#dlg-buttons">
+        <form id="fm" method="post" novalidate style="margin:0;padding:20px 50px">
+            <div style="margin-bottom:20px;font-size:14px;border-bottom:1px solid #ccc">User Information</div>
+            <div style="margin-bottom:10px">
+                <input name="name" class="easyui-textbox" required="true" label="Name:" style="width:100%">
+            </div>
+			<div style="margin-bottom:10px">
+                <input name="telephone" class="easyui-textbox" required="true" label="Telephone:" style="width:100%">
+            </div>
+			<div style="margin-bottom:10px">
+                <input name="company" class="easyui-textbox" required="true" label="Company:" style="width:100%">
+            </div>
+			<div style="margin-bottom:10px">
+                <input name="email" class="easyui-textbox" required="true" validType="email" label="Email:" style="width:100%">
+            </div>
+			<div style="margin-bottom:10px">
+                <input name="mgroup" class="easyui-textbox" required="true" label="Mgroup:" style="width:100%">
+            </div>
+			<div style="margin-bottom:10px">
+                <input name="comments" class="easyui-textbox" required="true" label="Comments:" style="width:100%">
+            </div>
+        </form>
+    </div>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+    </div>
+    <script type="text/javascript">
+        var url;
+        function newUser(){
+            $('#dlg').dialog('open').dialog('center').dialog('setTitle','New User');
+            $('#fm').form('clear');
+            url = 'save_user';
+        }
+        function editUser(){
+            var row = $('#dg').datagrid('getSelected');
+            if (row){
+                $('#dlg').dialog('open').dialog('center').dialog('setTitle','Edit User');
+                $('#fm').form('load',row);
+                url = 'update_user?id='+row.id;
+            }
+        }
+        function saveUser(){
+            $('#fm').form('submit',{
+                url: url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        $('#dlg').dialog('close');        // close the dialog
+                        $('#dg').datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        }
+        function destroyUser(){
+            var row = $('#dg').datagrid('getSelected');
+            if (row){
+                $.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+                    if (r){
+                        $.post('destroy_user',{id:row.id},function(result){
+                            if (result.success){
+                                $('#dg').datagrid('reload');    // reload the user data
+                            } else {
+                                $.messager.show({    // show error message
+                                    title: 'Error',
+                                    msg: result.errorMsg
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        }
+		// 新增查询
+		function doSearch(){
+			$('#dg').datagrid('load',{
+				name: $('#s_name').val(),
+				telephone: $('#s_telephone').val(),
+				company: $('#s_company').val(),
+				email: $('#s_email').val(),
+				mgroup: $('#s_mgroup').val(),
+				comments: $('#s_comments').val()
+			});
+		}
+    </script>
+</body>
+</html>
