@@ -25,7 +25,7 @@ app.use(require('express-session')({
 
 // 增
 app.post('/save_user', function (req, res) {
-    if (req.session.username == null) { res.redirect('/'); return; }
+    if (req.session.username == null) { res.send(null); return; }
     dbManager.insert('INSERT INTO maillist SET ?', req.body, (rows)=>{
         res.send(JSON.stringify(req.body));
     });
@@ -33,7 +33,7 @@ app.post('/save_user', function (req, res) {
 
 // 删
 app.post('/destroy_user', function (req, res) {
-    if (req.session.username == null) { res.redirect('/'); return; }
+    if (req.session.username == null) { res.send(null); return; }
     var id = 0;
     try {
         id = parseInt(req.body["id"]);
@@ -49,7 +49,7 @@ app.post('/destroy_user', function (req, res) {
 
 // 改
 app.post('/update_user', function (req, res) {
-    if (req.session.username == null) { res.redirect('/'); return; }
+    if (req.session.username == null) { res.send(null); return; }
     var id = req.query["id"];
     var sql = 'UPDATE maillist SET ';
     var arr = Object.keys(req.body);
@@ -69,7 +69,7 @@ app.post('/update_user', function (req, res) {
 
 // 查
 app.post('/get_users', function (req, res) {
-    if (req.session.username == null) { res.redirect('/'); return; }
+    if (req.session.username == null) { res.send(null); return; }
     var startIdx, searchNum;
     try {
         startIdx = (parseInt(req.body["page"]) -1) * 10;
